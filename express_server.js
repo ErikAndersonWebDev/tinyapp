@@ -13,6 +13,7 @@ function generateRandomString() {
 
 app.set("view engine", "ejs");
 
+// DATABASE
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
@@ -20,6 +21,7 @@ const urlDatabase = {
 
 app.use(express.urlencoded({ extended: true }));
 
+//ROUTING
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -37,6 +39,13 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//DELETE
+app.post("/urls/:id/delete", (req, res) => {
+  const id = req.params.id
+  delete urlDatabase[id] 
+  res.redirect("/urls")
+});
+
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
@@ -44,7 +53,7 @@ app.get("/urls/:id", (req, res) => {
   };
   res.render("urls_show", templateVars);
 });
-
+//CREATE
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body.longURL;
