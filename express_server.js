@@ -2,8 +2,8 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
-const cookieParser = require('cookie-parser')
-
+const cookieParser = require('cookie-parser');
+const morgan = require("morgan");
 function generateRandomString() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
@@ -13,10 +13,8 @@ function generateRandomString() {
   return result;
 }
 
-
-
 app.set("view engine", "ejs");
-
+app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
 
 // STARTING DATABASE OF URLS
@@ -27,8 +25,19 @@ let urlDatabase = {
 
 /////// USER DATABASE
 const users = {}
+/////// REGISTER
+app.post("/register", (req, res) => {
+  const loginID = req.body.username
+  const id = req.body.id
+  users[id] = loginID
+  res.cookie("username", loginID)
+  res.redirect("/urls")
+})
 
-app.use(cookieParser())
+app.get("/register", (req, res) => {
+  res.render("register")
+})
+
 /////// LOGIN
 app.post("/login", (req, res) => {
   const loginID = req.body.username
@@ -37,7 +46,7 @@ app.post("/login", (req, res) => {
   res.cookie("username", loginID)
   res.redirect("/urls")
 });
-
+/////// LOGOUT
 app.post("/logout", (req, res) => {
   res.clearCookie("username")
   res.redirect("/urls")

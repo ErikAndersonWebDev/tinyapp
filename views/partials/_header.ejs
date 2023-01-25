@@ -26,6 +26,9 @@
             />
             <button type="submit">Submit</button>
           </form>
+          <form action="/register" method="GET">  
+          <button type="submit">Register</button>
+          </form>
           <% } else { %>
             <a class="nav-item nav-link">Logged in as: <%= username %></a>
             <form action="/logout" method="POST">
