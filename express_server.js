@@ -22,6 +22,18 @@ let urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+/////// USER DATABASE
+const users = {}
+
+/////// LOGIN
+app.post("/login", (req, res) => {
+  const loginID = req.body.username
+  const id = req.body.id
+  users[id] = loginID
+  res.cookie("username", loginID)
+  res.redirect("/urls")
+})
+
 ////////ROUTING
 //HOMEPAGE - REDIRECTED TO URLS
 app.get("/", (req, res) => {
