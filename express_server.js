@@ -1,3 +1,4 @@
+//////////////APP FUNCTIONS, VARIABLES, AND LIBRARIES
 const express = require("express");
 const app = express();
 const PORT = 8080;
@@ -13,15 +14,16 @@ function generateRandomString() {
 
 app.set("view engine", "ejs");
 
-// DATABASE
+app.use(express.urlencoded({ extended: true }));
+
+// STARTING DATABASE OF URLS
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
 
-app.use(express.urlencoded({ extended: true }));
-
-//ROUTING
+////////ROUTING
+//HOMEPAGE - REDIRECTED TO URLS
 app.get("/", (req, res) => {
   res.redirect("/urls")
 })
@@ -29,31 +31,31 @@ app.get("/", (req, res) => {
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
-
+//URLS MAIN PAGE WITH LIST OF URLS
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
-
+//CREATING NEW SHORT-LONG URL PAIR
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-//DELETE
+//DELETING A URL
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id
   delete urlDatabase[id] 
   res.redirect("/urls")
 });
 
-//EDIT
+//EDITING A URL FROM FORM
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id
   const longURL = req.body.longURL
   urlDatabase[id] = longURL
   res.redirect("/urls")
 });
-
+//SPECIFIC URL PAIR INFO PAGE WITH EDIT FORM
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
@@ -61,23 +63,20 @@ app.get("/urls/:id", (req, res) => {
   };
   res.render("urls_show", templateVars);
 });
-//CREATE
+//CREATING A NEW URL PAIR
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body.longURL;
   res.redirect(`/urls/${newShortURL}`)
 });
-
+//REDIRECTED TO URL WEBPAGE WHEN CLICKING ON SHORT URL
 app.get("/u/:id", (req, res) => {
-  console.log(res)
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
 
+//LISTENING ON PORT
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
