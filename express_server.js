@@ -34,6 +34,11 @@ app.post("/login", (req, res) => {
   users[id] = loginID
   res.cookie("username", loginID)
   res.redirect("/urls")
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username")
+  res.redirect("/urls")
 })
 
 ////////ROUTING
