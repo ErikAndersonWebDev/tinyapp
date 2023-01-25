@@ -16,13 +16,13 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-          <% if(!username){ %>
+          <% if(!foundUser){ %>
+            <% console.log(foundUser) %>
             <form action="/login" method="POST">
-            <label for="username">Login</label>
+            <label>Login</label>
             <input
-             id="username"
-             type="text"
-             name="username"
+             type="email"
+             name="email"
             />
             <button type="submit">Submit</button>
           </form>
@@ -30,7 +30,7 @@
           <button type="submit">Register</button>
           </form>
           <% } else { %>
-            <a class="nav-item nav-link">Logged in as: <%= username %></a>
+            <a class="nav-item nav-link">Logged in as: <%= foundUser.email %></a>
             <form action="/logout" method="POST">
             <button type="submit">Logout</button>
           </form>

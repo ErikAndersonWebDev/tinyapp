@@ -12,7 +12,7 @@ function generateRandomString() {
   }
   return result;
 }
-
+app.use(morgan())
 app.set("view engine", "ejs");
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
@@ -25,12 +25,19 @@ let urlDatabase = {
 
 /////// USER DATABASE
 const users = {}
+
 /////// REGISTER
 app.post("/register", (req, res) => {
-  const loginID = req.body.username
-  const id = req.body.id
-  users[id] = loginID
-  res.cookie("username", loginID)
+  const email = req.body.email
+  const password = req.body.password
+  const id = generateRandomString();
+  const newUser = {
+    id: id,
+    email: email,
+    password: password
+  }
+  users[id] = newUser
+  res.cookie("loginID", id)
   res.redirect("/urls")
 })
 
@@ -40,10 +47,22 @@ app.get("/register", (req, res) => {
 
 /////// LOGIN
 app.post("/login", (req, res) => {
-  const loginID = req.body.username
-  const id = req.body.id
-  users[id] = loginID
-  res.cookie("username", loginID)
+  const email = req.body.email
+  const password = req.body.password
+  if (!email || !password) {
+    return res.status(400).send("Please provide an email and password")
+  }
+  let foundUser = null
+  for (let user in users) {
+    if (user.email === email && user.password === password) {
+      foundUser = user;
+    }
+  }
+  if (!foundUser) {
+    return res.status(400).send("Invalid email and/or password")
+  }
+  res.cookie("loginID", foundUser.id)
+  console.log(foundUser)
   res.redirect("/urls")
 });
 /////// LOGOUT
@@ -64,7 +83,7 @@ app.get("/urls.json", (req, res) => {
 //URLS MAIN PAGE WITH LIST OF URLS
 app.get("/urls", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    foundUser: req.params.foundUser,
     urls: urlDatabase
   };
   res.render("urls_index", templateVars);
