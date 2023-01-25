@@ -17,7 +17,7 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
 // STARTING DATABASE OF URLS
-const urlDatabase = {
+let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
