@@ -2,6 +2,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
+const cookieParser = require('cookie-parser')
 
 function generateRandomString() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -25,6 +26,7 @@ let urlDatabase = {
 /////// USER DATABASE
 const users = {}
 
+app.use(cookieParser())
 /////// LOGIN
 app.post("/login", (req, res) => {
   const loginID = req.body.username
@@ -45,12 +47,18 @@ app.get("/urls.json", (req, res) => {
 });
 //URLS MAIN PAGE WITH LIST OF URLS
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase
+  };
   res.render("urls_index", templateVars);
 });
 //CREATING NEW SHORT-LONG URL PAIR
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render("urls_new", templateVars);
 });
 
 //DELETING A URL
@@ -70,6 +78,7 @@ app.post("/urls/:id", (req, res) => {
 //SPECIFIC URL PAIR INFO PAGE WITH EDIT FORM
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
+    username: req.cookies["username"],
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };

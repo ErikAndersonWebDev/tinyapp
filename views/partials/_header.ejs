@@ -16,7 +16,7 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <form action="/login" method="POST">
+          <form action="/login" method="POST">
           <label for="username">Login</label>
           <input
             id="username"
@@ -24,8 +24,9 @@
             name="username"
             />
             <button type="submit">Submit</button>
-        </form>
-      </div>
+          </form>
+        </div>
+        <a class="nav-item nav-link" href="/urls/"><%= username %></a>
     </div>
   </nav>
 </header>
