@@ -44,13 +44,13 @@ app.post("/register", (req, res) => {
   }
   users[id] = newUser
   res.cookie("user_id", newUser.id)
-  console.log(users)
+  console.log(newUser.id)
   res.redirect("/urls")
 })
 
 app.get("/register", (req, res) => {
   const templateVars = {
-    user: users[req.cookies[user_id]]
+    user: users[req.cookies["user_id"]]
   }
   res.render("register", templateVars)
 })
@@ -128,7 +128,7 @@ app.post("/urls/:id", (req, res) => {
 //SPECIFIC URL PAIR INFO PAGE WITH EDIT FORM
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
-    user: users[req.cookies[user_id]],
+    user: users[req.cookies["user_id"]],
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
