@@ -132,6 +132,10 @@ app.get("/urls/new", (req, res) => {
 
 //DELETING A URL
 app.post("/urls/:id/delete", (req, res) => {
+  const user = req.cookies["user_id"]
+  if (!user) {
+    return res.status(403).send("Unaurthorized to delete this URL. Please Login to delete")
+  }
   const id = req.params.id
   delete urlDatabase[id] 
   res.redirect("/urls")
