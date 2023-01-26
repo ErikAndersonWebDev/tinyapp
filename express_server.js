@@ -12,7 +12,7 @@ function generateRandomString() {
   }
   return result;
 }
-app.use(morgan())
+app.use(morgan("dev"))
 app.set("view engine", "ejs");
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
@@ -24,7 +24,13 @@ let urlDatabase = {
 };
 
 /////// USER DATABASE
-const users = {}
+const users = {
+  123: {
+    id: "123",
+    email: "a@a.com",
+    password: "111"
+  }
+}
 
 /////// REGISTER
 app.post("/register", (req, res) => {
@@ -37,15 +43,23 @@ app.post("/register", (req, res) => {
     password: password
   }
   users[id] = newUser
-  res.cookie("loginID", id)
+  res.cookie("user_id", newUser.id)
+  console.log(users)
   res.redirect("/urls")
 })
 
 app.get("/register", (req, res) => {
-  res.render("register")
+  const templateVars = {
+    user: users[req.cookies[user_id]]
+  }
+  res.render("register", templateVars)
 })
 
 /////// LOGIN
+app.get("/login", (req, res) => {
+  res.render("login")
+})
+
 app.post("/login", (req, res) => {
   const email = req.body.email
   const password = req.body.password
@@ -53,7 +67,8 @@ app.post("/login", (req, res) => {
     return res.status(400).send("Please provide an email and password")
   }
   let foundUser = null
-  for (let user in users) {
+  for (let userID in users) {
+    const user = users[userID]
     if (user.email === email && user.password === password) {
       foundUser = user;
     }
@@ -61,13 +76,12 @@ app.post("/login", (req, res) => {
   if (!foundUser) {
     return res.status(400).send("Invalid email and/or password")
   }
-  res.cookie("loginID", foundUser.id)
-  console.log(foundUser)
+  res.cookie("user_id", foundUser.id)
   res.redirect("/urls")
 });
 /////// LOGOUT
 app.post("/logout", (req, res) => {
-  res.clearCookie("username")
+  res.clearCookie("user_id")
   res.redirect("/urls")
 })
 
@@ -83,15 +97,16 @@ app.get("/urls.json", (req, res) => {
 //URLS MAIN PAGE WITH LIST OF URLS
 app.get("/urls", (req, res) => {
   const templateVars = {
-    foundUser: req.params.foundUser,
+    user: users[req.cookies["user_id"]],
     urls: urlDatabase
   };
+  console.log(templateVars)
   res.render("urls_index", templateVars);
 });
 //CREATING NEW SHORT-LONG URL PAIR
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    user: users[req.cookies["user_id"]]
   }
   res.render("urls_new", templateVars);
 });
@@ -113,7 +128,7 @@ app.post("/urls/:id", (req, res) => {
 //SPECIFIC URL PAIR INFO PAGE WITH EDIT FORM
 app.get("/urls/:id", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies[user_id]],
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
   };
