@@ -15,11 +15,11 @@ app.use(express.urlencoded({ extended: true }));
 let urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    userID: "3212"
+    user_id: "3212"
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
-    userID: "123"
+    user_id: "123"
   }
 };
 
@@ -134,9 +134,12 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const user = req.cookies["user_id"]
   if (!user) {
-    return res.status(403).send("Unaurthorized to delete this URL. Please Login to delete")
+    return res.status(403).send("User is not logged in. Please Login")
   }
   const id = req.params.id
+  if (urlDatabase[id].user_id !== user) {
+    return res.status(403).send("You do not own this URL")
+  }
   let foundUrlId = null;
   for (let urlID in urlDatabase) {
     if (urlID === id) {
@@ -152,8 +155,17 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //EDITING A URL FROM FORM
 app.post("/urls/:id", (req, res) => {
-  console.log(req.params)
+  const user = req.cookies["user_id"]
+  if (!user) {
+    return res.status(403).send("User is not logged in. Please Login")
+  }
   const id = req.params.id
+  if (!urlDatabase[id]) {
+    return res.status(403).send("URL does not exist. Please try again")
+  }
+  if (urlDatabase[id].user_id !== user) {
+    return req.status(403).send("You do not own this URL")
+  }
   const longURL = req.body.longURL
   urlDatabase[id].longURL = longURL
   res.redirect("/urls")
@@ -173,7 +185,7 @@ app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = {
     longURL: req.body.longURL,
-    userID: user
+    user_id: user
   }
   res.redirect(`/urls/${newShortURL}`)
 });
