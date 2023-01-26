@@ -36,6 +36,15 @@ const users = {
 app.post("/register", (req, res) => {
   const email = req.body.email
   const password = req.body.password
+  if (!email || !password) {
+    return res.status(400).send("Please fill in email and password fields")
+  }
+  for (let index in users) {
+    console.log(users[index].email)
+    if (users[index].email === email) {
+      return res.status(400).send("Email already exits in database")
+    }
+  }
   const id = generateRandomString();
   const newUser = {
     id: id,
