@@ -4,14 +4,8 @@ const app = express();
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
 const morgan = require("morgan");
-function generateRandomString() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-}
+const { generateRandomString } = require("./helpers")
+
 app.use(morgan("dev"))
 app.set("view engine", "ejs");
 app.use(cookieParser())
@@ -61,6 +55,9 @@ app.get("/register", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]]
   }
+  if (req.cookies["user_id"]) {
+    res.redirect("/urls")
+  }
   res.render("register", templateVars)
 })
 
@@ -68,6 +65,9 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]]
+  }
+  if (req.cookies["user_id"]) {
+    res.redirect("/urls")
   }
   res.render("login", templateVars)
 })
@@ -119,6 +119,9 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.cookies["user_id"]]
+  }
+  if (!req.cookies["user_id"]) {
+    res.redirect("/login")
   }
   res.render("urls_new", templateVars);
 });
