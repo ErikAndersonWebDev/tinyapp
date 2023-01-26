@@ -30,6 +30,7 @@
           </tr>
         </thead>
         <tbody>
+          <% if (user) { %>
           <% for (let id in urls) { %>
             <tr>
               <td><a href="/u/<%= id %>"><%= id %></a></td>
@@ -40,6 +41,11 @@
               <% } %>
             </tr>
           <% } %>
+          <% } else { %>
+            <tr>
+            <td>Please Login or Register to see URLs</td>
+          </tr>
+            <% } %>
         </tbody>
       </table>
     </main>
