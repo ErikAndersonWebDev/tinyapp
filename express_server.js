@@ -84,18 +84,20 @@ app.post("/login", (req, res) => {
   if (!email || !password) {
     return res.status(403).send("Please provide an email and password")
   }
-  let foundUser = null
   for (let userID in users) {
     const user = users[userID]
-    if (user.email === email && user.password === password) {
-      foundUser = user;
+    if (user.email === email) {
+      bcrypt.compare(password, user.password)
+      .then((result) => {
+        if (result) {
+          res.cookie("user_id", user.id)
+          res.redirect("/urls")
+        } else {
+          return res.status(403).send("Invalid email and/or password")
+        }
+      })
     }
   }
-  if (!foundUser) {
-    return res.status(403).send("Invalid email and/or password")
-  }
-  res.cookie("user_id", foundUser.id)
-  res.redirect("/urls")
 });
 /////// LOGOUT
 app.post("/logout", (req, res) => {
