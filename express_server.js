@@ -5,6 +5,7 @@ const PORT = 8080;
 const cookieParser = require('cookie-parser');
 const morgan = require("morgan");
 const { generateRandomString, urlsForUser } = require("./helpers")
+const bcrypt = require("bcryptjs")
 
 app.use(morgan("dev"))
 app.set("view engine", "ejs");
@@ -45,10 +46,11 @@ app.post("/register", (req, res) => {
     }
   }
   const id = generateRandomString();
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const newUser = {
     id: id,
     email: email,
-    password: password
+    password: hashedPassword
   }
   users[id] = newUser
   res.cookie("user_id", newUser.id)
