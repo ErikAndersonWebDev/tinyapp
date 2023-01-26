@@ -37,11 +37,11 @@ app.post("/register", (req, res) => {
   const email = req.body.email
   const password = req.body.password
   if (!email || !password) {
-    return res.status(400).send("Please fill in email and password fields")
+    return res.status(403).send("Please fill in email and password fields")
   }
   for (let index in users) {
     if (users[index].email === email) {
-      return res.status(400).send("Email already exits in database")
+      return res.status(403).send("Email already exits in database")
     }
   }
   const id = generateRandomString();
@@ -166,7 +166,7 @@ app.post("/urls", (req, res) => {
 });
 //REDIRECTED TO URL WEBPAGE WHEN CLICKING ON SHORT URL
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
 });
 
