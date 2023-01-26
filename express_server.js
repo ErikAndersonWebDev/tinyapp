@@ -4,7 +4,7 @@ const app = express();
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
 const morgan = require("morgan");
-const { generateRandomString } = require("./helpers")
+const { generateRandomString, urlsForUser } = require("./helpers")
 
 app.use(morgan("dev"))
 app.set("view engine", "ejs");
@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 let urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    userID: "123"
+    userID: "3212"
   },
   "9sm5xK": {
     longURL: "http://www.google.com",

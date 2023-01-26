@@ -33,11 +33,13 @@
           <% if (user) { %>
           <% for (let id in urls) { %>
             <tr>
+              <% if (urls[id].userID === user.id) { %>
               <td><a href="/u/<%= id %>"><%= id %></a></td>
               <td><%= urls[id].longURL %></td>
               <% if (user) { %>
               <td><form method="GET" action="/urls/<%=id%>"><button type="submit">Edit</button></form></td>
               <td><form method="POST" action="/urls/<%=id%>/delete"><button type="submit">Delete</button></form></td>
+              <% } %>
               <% } %>
             </tr>
           <% } %>

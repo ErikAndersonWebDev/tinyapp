@@ -7,6 +7,9 @@ const generateRandomString = function() {
   return result;
 }
 
+const urlsForUser = function(id) {
+  
+}
 
 
-module.exports = { generateRandomString }
+module.exports = { generateRandomString, urlsForUser }
