@@ -137,7 +137,16 @@ app.post("/urls/:id/delete", (req, res) => {
     return res.status(403).send("Unaurthorized to delete this URL. Please Login to delete")
   }
   const id = req.params.id
-  delete urlDatabase[id] 
+  let foundUrlId = null;
+  for (let urlID in urlDatabase) {
+    if (urlID === id) {
+      delete urlDatabase[id]
+      foundUrlId = true
+    }
+  }
+  if (!foundUrlId) {
+    return res.status(403).send("URL ID not found, please try again")
+  }
   res.redirect("/urls")
 });
 
@@ -160,7 +169,7 @@ app.get("/urls/:id", (req, res) => {
 });
 //CREATING A NEW URL PAIR
 app.post("/urls", (req, res) => {
-  const user = req.cookies["user_ID"];
+  const user = req.cookies["user_id"];
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = {
     longURL: req.body.longURL,
