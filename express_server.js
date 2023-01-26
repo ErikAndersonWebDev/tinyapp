@@ -66,14 +66,17 @@ app.get("/register", (req, res) => {
 
 /////// LOGIN
 app.get("/login", (req, res) => {
-  res.render("login")
+  const templateVars = {
+    user: users[req.cookies["user_id"]]
+  }
+  res.render("login", templateVars)
 })
 
 app.post("/login", (req, res) => {
   const email = req.body.email
   const password = req.body.password
   if (!email || !password) {
-    return res.status(400).send("Please provide an email and password")
+    return res.status(403).send("Please provide an email and password")
   }
   let foundUser = null
   for (let userID in users) {
@@ -83,7 +86,7 @@ app.post("/login", (req, res) => {
     }
   }
   if (!foundUser) {
-    return res.status(400).send("Invalid email and/or password")
+    return res.status(403).send("Invalid email and/or password")
   }
   res.cookie("user_id", foundUser.id)
   res.redirect("/urls")

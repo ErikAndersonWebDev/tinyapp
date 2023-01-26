@@ -19,9 +19,9 @@
         <% if (!user) { %> 
         <form action="/login" method="GET">
             <button type="submit">Login</button>
-          </form>
+            </form>
           <form action="/register" method="GET">  
-          <button type="submit">Register</button>
+            <button type="submit">Register</button>
           </form>
           <% } else { %>
             <a class="nav-item nav-link">Logged in as: <%= user.email  %></a>
