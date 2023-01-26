@@ -21,6 +21,7 @@
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
       </div>
+      <% if (user) { %>
       <div class="card-footer text-muted"></div>
       <form action="/urls/<%=id%>" method="POST">
         <h2>Edit</h2>
@@ -32,9 +33,9 @@
           placeholder="http://"
           />
           <button type="submit">Submit</button>
-
       </form>
     </div>
+    <% } %>
     <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
