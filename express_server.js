@@ -93,9 +93,11 @@ app.post("/login", (req, res) => {
   if (!email || !password) {
     return res.status(403).send("Please provide an email and password")
   }
+  let foundEmail = null;
   for (let userID in users) {
     const user = users[userID]
     if (user.email === email) {
+      foundEmail = true
       bcrypt.compare(password, user.password)
       .then((result) => {
         if (result) {
@@ -107,7 +109,9 @@ app.post("/login", (req, res) => {
       })
     }
   }
-
+  if (!foundEmail) {
+    return res.status(403).send("Invalid email and/or password")
+  }
 });
 /////// LOGOUT
 app.post("/logout", (req, res) => {
