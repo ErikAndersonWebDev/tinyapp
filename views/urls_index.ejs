@@ -33,21 +33,17 @@
           <% if (user) { %>
             <% for (let id in urls) { %>
             <tr>
-              
               <td><a href="/u/<%= id %>"><%= id %></a></td>
               <td><%= urls[id]%></td>
-              
               <td><form method="GET" action="/urls/<%=id%>"><button type="submit">Edit</button></form></td>
               <td><form method="POST" action="/urls/<%=id%>/delete"><button type="submit">Delete</button></form></td>
-             
-
             </tr>
-          <% } %>
+            <% } %>
           <% } else { %>
             <tr>
             <td>Please Login or Register to see URLs</td>
-          </tr>
-            <% } %>
+            </tr>
+          <% } %>
         </tbody>
       </table>
     </main>
