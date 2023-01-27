@@ -99,7 +99,7 @@ app.post("/login", (req, res) => {
       bcrypt.compare(password, user.password)
       .then((result) => {
         if (result) {
-          req.session.user_id = "user.id"
+          req.session.user_id = userID
           res.redirect("/urls")
         } else {
           return res.status(403).send("Invalid email and/or password")
@@ -107,7 +107,7 @@ app.post("/login", (req, res) => {
       })
     }
   }
-  return res.status(403).send("Invalid email and/or password")
+
 });
 /////// LOGOUT
 app.post("/logout", (req, res) => {
