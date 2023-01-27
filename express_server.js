@@ -4,7 +4,7 @@ const app = express();
 const PORT = 8080;
 const cookieSession = require("cookie-session")
 const morgan = require("morgan");
-const { generateRandomString, urlsForUser } = require("./helpers")
+const { generateRandomString, urlsForUser, getUserByEmail } = require("./helpers")
 const bcrypt = require("bcryptjs")
 
 app.use(morgan("dev"))
@@ -29,10 +29,10 @@ const urlDatabase = {
 
 /////// USER DATABASE
 const users = {
-  123: {
-    id: "123",
-    email: "a@a.com",
-    password: "111"
+  'Ii36Og': {
+    id: 'Ii36Og',
+    email: 'c@c.com',
+    password: '$2a$10$1qcMqt526PzbDNWO3YBNVOBLPPLX5PwB8Jrwf8YW8I/s9TQAj3FDu'
   },
   "kIQTay": {
     id: "kIQTay",
@@ -48,10 +48,9 @@ app.post("/register", (req, res) => {
   if (!email || !password) {
     return res.status(400).send("Please fill in email and password fields")
   }
-  for (let index in users) {
-    if (users[index].email === email) {
+  const existingUser = getUserByEmail(email, users)
+  if (existingUser) {
       return res.status(400).send("Email already exits in database")
-    }
   }
   const id = generateRandomString();
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -60,7 +59,6 @@ app.post("/register", (req, res) => {
     email: email,
     password: hashedPassword
   }
-  console.log(newUser) ///////////////////////////
   users[id] = newUser
   req.session.user_id = newUser.id
   res.redirect("/urls")
@@ -93,26 +91,22 @@ app.post("/login", (req, res) => {
   if (!email || !password) {
     return res.status(403).send("Please provide an email and password")
   }
-  let foundEmail = null;
-  for (let userID in users) {
-    const user = users[userID]
-    if (user.email === email) {
-      foundEmail = true
-      bcrypt.compare(password, user.password)
+  const existingUser = getUserByEmail(email, users)
+    if (existingUser) {
+      bcrypt.compare(password, existingUser.password)
       .then((result) => {
         if (result) {
-          req.session.user_id = userID
+          req.session.user_id = existingUser.id
           res.redirect("/urls")
         } else {
           return res.status(403).send("Invalid email and/or password")
         }
       })
     }
-  }
-  if (!foundEmail) {
-    return res.status(403).send("Invalid email and/or password")
-  }
-});
+    else {
+      return res.status(403).send("Invalid email and/or password")
+    }
+  })
 /////// LOGOUT
 app.post("/logout", (req, res) => {
   req.session = null
@@ -120,6 +114,7 @@ app.post("/logout", (req, res) => {
 })
 
 ////////ROUTING
+
 //HOMEPAGE - REDIRECTED TO URLS
 app.get("/", (req, res) => {
   res.redirect("/urls")
@@ -145,8 +140,9 @@ app.get("/urls/new", (req, res) => {
   }
   if (!req.session.user_id) {
     res.redirect("/login")
+  } else {
+    res.render("urls_new", templateVars);
   }
-  res.render("urls_new", templateVars);
 });
 
 //DELETING A URL
