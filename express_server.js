@@ -93,10 +93,10 @@ app.post("/login", (req, res) => {
   }
   const existingUser = getUserByEmail(email, users)
     if (existingUser) {
-      bcrypt.compare(password, existingUser.password)
+      bcrypt.compare(password, users[existingUser].password)
       .then((result) => {
         if (result) {
-          req.session.user_id = existingUser.id
+          req.session.user_id = users[existingUser].id
           res.redirect("/urls")
         } else {
           return res.status(403).send("Invalid email and/or password")

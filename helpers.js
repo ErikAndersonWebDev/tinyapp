@@ -21,7 +21,7 @@ const urlsForUser = function(user, urls) {
 const getUserByEmail = function(email, users) {
   for (let index in users) {
     if (users[index].email === email) {
-      return users[index]
+      return users[index].id
     }
   }
   return undefined;
