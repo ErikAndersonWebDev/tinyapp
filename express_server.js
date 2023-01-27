@@ -19,11 +19,11 @@ app.use(express.urlencoded({ extended: true }));
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    user_id: "3212"
+    user_id: 'Ii36Og'
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
-    user_id: "123"
+    user_id: "kIQTay"
   }
 };
 

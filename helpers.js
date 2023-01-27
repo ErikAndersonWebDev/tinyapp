@@ -14,7 +14,6 @@ const urlsForUser = function(user, urls) {
       userUrls[url] = urls[url].longURL
     }
   }
-  console.log(userUrls)
   return userUrls;
 }
 
