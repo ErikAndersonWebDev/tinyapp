@@ -16,7 +16,7 @@ app.use(cookieSession({
 app.use(express.urlencoded({ extended: true }));
 
 // STARTING DATABASE OF URLS
-let urlDatabase = {
+const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
     user_id: "3212"
@@ -33,6 +33,11 @@ const users = {
     id: "123",
     email: "a@a.com",
     password: "111"
+  },
+  "kIQTay": {
+    id: "kIQTay",
+    email: "b@b.com",
+    password: "$2a$10$Xh9IQVUvQStAClgisQ/DD.4dsSe2MW59c/qJvcts/1h6PX/K/4GKy"
   }
 }
 
@@ -41,11 +46,11 @@ app.post("/register", (req, res) => {
   const email = req.body.email
   const password = req.body.password
   if (!email || !password) {
-    return res.status(403).send("Please fill in email and password fields")
+    return res.status(400).send("Please fill in email and password fields")
   }
   for (let index in users) {
     if (users[index].email === email) {
-      return res.status(403).send("Email already exits in database")
+      return res.status(400).send("Email already exits in database")
     }
   }
   const id = generateRandomString();
@@ -55,6 +60,7 @@ app.post("/register", (req, res) => {
     email: email,
     password: hashedPassword
   }
+  console.log(newUser) ///////////////////////////
   users[id] = newUser
   req.session.user_id = newUser.id
   res.redirect("/urls")
@@ -77,9 +83,9 @@ app.get("/login", (req, res) => {
   }
   if (req.session.user_id) {
     res.redirect("/urls")
-  }
+  } else {
   res.render("login", templateVars)
-})
+}})
 
 app.post("/login", (req, res) => {
   const email = req.body.email
@@ -101,6 +107,7 @@ app.post("/login", (req, res) => {
       })
     }
   }
+  return res.status(403).send("Invalid email and/or password")
 });
 /////// LOGOUT
 app.post("/logout", (req, res) => {
@@ -120,9 +127,10 @@ app.get("/urls.json", (req, res) => {
 //URLS MAIN PAGE WITH LIST OF URLS
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id
+  const urls = urlsForUser(userID, urlDatabase)
   const templateVars = {
     user: users[userID],
-    urls: urlDatabase
+    urls: urls
   }
   res.render("urls_index", templateVars);
 });
@@ -141,11 +149,11 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const user = req.session.user_id
   if (!user) {
-    return res.status(403).send("User is not logged in. Please Login")
+    return res.status(400).send("User is not logged in. Please Login")
   }
   const id = req.params.id
   if (urlDatabase[id].user_id !== user) {
-    return res.status(403).send("You do not own this URL")
+    return res.status(400).send("You do not own this URL")
   }
   let foundUrlId = null;
   for (let urlID in urlDatabase) {
@@ -155,7 +163,7 @@ app.post("/urls/:id/delete", (req, res) => {
     }
   }
   if (!foundUrlId) {
-    return res.status(403).send("URL ID not found, please try again")
+    return res.status(400).send("URL ID not found, please try again")
   }
   res.redirect("/urls")
 });
@@ -164,14 +172,14 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const user = req.session.user_id
   if (!user) {
-    return res.status(403).send("User is not logged in. Please Login")
+    return res.status(400).send("User is not logged in. Please Login")
   }
   const id = req.params.id
   if (!urlDatabase[id]) {
-    return res.status(403).send("URL does not exist. Please try again")
+    return res.status(400).send("URL does not exist. Please try again")
   }
   if (urlDatabase[id].user_id !== user) {
-    return req.status(403).send("You do not own this URL")
+    return req.status(400).send("You do not own this URL")
   }
   const longURL = req.body.longURL
   urlDatabase[id].longURL = longURL

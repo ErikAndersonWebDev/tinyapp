@@ -7,8 +7,15 @@ const generateRandomString = function() {
   return result;
 }
 
-const urlsForUser = function(id) {
-
+const urlsForUser = function(user, urls) {
+  const userUrls = {};
+  for (let url in urls) {
+    if (urls[url].user_id === user) {
+      userUrls[url] = urls[url].longURL
+    }
+  }
+  console.log(userUrls)
+  return userUrls;
 }
 
 
