@@ -5,6 +5,8 @@ const PORT = 8080;
 const cookieSession = require("cookie-session");
 const morgan = require("morgan");
 const { generateRandomString, urlsForUser, getUserByEmail } = require("./helpers");
+const { users, urlDatabase } = require("./database");
+
 const bcrypt = require("bcryptjs");
 
 app.use(morgan("dev"));
@@ -15,32 +17,6 @@ app.use(cookieSession({
 }));
 
 app.use(express.urlencoded({ extended: true }));
-
-// STARTING DATABASE OF URLS
-const urlDatabase = {
-  b2xVn2: {
-    longURL: "http://www.lighthouselabs.ca",
-    user_id: "Ii36Og",
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    user_id: "kIQTay",
-  },
-};
-
-/////// USER DATABASE
-const users = {
-  Ii36Og: {
-    id: "Ii36Og",
-    email: "c@c.com",
-    password: "$2a$10$1qcMqt526PzbDNWO3YBNVOBLPPLX5PwB8Jrwf8YW8I/s9TQAj3FDu",
-  },
-  kIQTay: {
-    id: "kIQTay",
-    email: "b@b.com",
-    password: "$2a$10$Xh9IQVUvQStAClgisQ/DD.4dsSe2MW59c/qJvcts/1h6PX/K/4GKy",
-  },
-};
 
 /////// REGISTER
 app.post("/register", (req, res) => {
@@ -62,7 +38,7 @@ app.post("/register", (req, res) => {
   };
   users[id] = newUser;
   req.session.user_id = newUser.id;
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.get("/register", (req, res) => {
@@ -70,9 +46,9 @@ app.get("/register", (req, res) => {
     user: users[req.session.user_id]
   };
   if (req.session.user_id) {
-    res.redirect("/urls");
+    return res.redirect("/urls");
   }
-  res.render("register", templateVars);
+  return res.render("register", templateVars);
 });
 
 /////// LOGIN
@@ -81,9 +57,9 @@ app.get("/login", (req, res) => {
     user: users[req.session.user_id]
   };
   if (req.session.user_id) {
-    res.redirect("/urls");
+    return res.redirect("/urls");
   } else {
-    res.render("login", templateVars);
+    return res.render("login", templateVars);
   }
 });
 
@@ -99,7 +75,7 @@ app.post("/login", (req, res) => {
     .then((result) => {
       if (result) {
         req.session.user_id = users[existingUser].id;
-        res.redirect("/urls");
+        return res.redirect("/urls");
       } else {
         return res.status(403).send("Invalid email and/or password");
       };
@@ -111,18 +87,23 @@ app.post("/login", (req, res) => {
 /////// LOGOUT
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 ////////ROUTING
 
 //HOMEPAGE - REDIRECTED TO URLS
 app.get("/", (req, res) => {
-  res.redirect("/urls");
+  if (!req.session) {
+    return res.redirect("/login");
+  }
+  else {
+    return res.redirect("/urls");
+  }
 });
 
 app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+  return res.json(urlDatabase);
 });
 
 //URLS MAIN PAGE WITH LIST OF URLS
@@ -133,7 +114,7 @@ app.get("/urls", (req, res) => {
     user: users[userID],
     urls: urls
   };
-  res.render("urls_index", templateVars);
+  return res.render("urls_index", templateVars);
 });
 
 //CREATING NEW SHORT-LONG URL PAIR
@@ -142,9 +123,9 @@ app.get("/urls/new", (req, res) => {
     user: users[req.session.user_id],
   };
   if (!req.session.user_id) {
-    res.redirect("/login");
+    return res.redirect("/login");
   } else {
-    res.render("urls_new", templateVars);
+    return res.render("urls_new", templateVars);
   };
 });
 
@@ -168,7 +149,7 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!foundUrlId) {
     return res.status(400).send("URL ID not found, please try again");
   };
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 //EDITING A URL FROM FORM
@@ -178,15 +159,18 @@ app.post("/urls/:id", (req, res) => {
     return res.status(400).send("User is not logged in. Please Login");
   };
   const id = req.params.id;
+  const longURL = req.body.longURL;
   if (!urlDatabase[id]) {
     return res.status(400).send("URL does not exist. Please try again");
   };
   if (urlDatabase[id].user_id !== user) {
-    return req.status(400).send("You do not own this URL");
+    return res.status(400).send("You do not own this URL");
   };
-  const longURL = req.body.longURL;
+  if (!longURL.includes("http://www.")) {
+    return res.status(400).send("Invalid URL, try again");
+  }
   urlDatabase[id].longURL = longURL;
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 //SPECIFIC URL PAIR INFO PAGE WITH EDIT FORM
 app.get("/urls/:id", (req, res) => {
@@ -195,22 +179,26 @@ app.get("/urls/:id", (req, res) => {
     id: req.params.id,
     longURL: urlDatabase[req.params.id].longURL,
   };
-  res.render("urls_show", templateVars);
+  return res.render("urls_show", templateVars);
 });
 //CREATING A NEW URL PAIR
 app.post("/urls", (req, res) => {
   const user = req.session.user_id;
   const newShortURL = generateRandomString();
+  const longURL = req.body.longURL
+  if (!longURL.includes("http://www.")) {
+    return res.status(400).send("Invalid URL, try again");
+  }
   urlDatabase[newShortURL] = {
-    longURL: req.body.longURL,
+    longURL: longURL,
     user_id: user
   };
-  res.redirect(`/urls/${newShortURL}`);
+  return res.redirect(`/urls/${newShortURL}`);
 });
 //REDIRECTED TO URL WEBPAGE WHEN CLICKING ON SHORT URL
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id].longURL;
-  res.redirect(longURL);
+  return res.redirect(longURL);
 });
 
 //LISTENING ON PORT

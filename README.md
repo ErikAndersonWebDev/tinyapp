@@ -21,5 +21,6 @@ This is our first full stack project in our Ligthouse Labs bootcamp.
 
 ## Getting Started
 
-- Install all dependencies (using the `npm install` command).
-- Run the development web server using the `node express_server.js` command.
+- Install all dependencies using the `npm install` command.
+- Run the development web server using the `npm start` command.
+- Run testing for helper functions using the `npm run test` command.
