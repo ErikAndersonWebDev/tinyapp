@@ -87,14 +87,14 @@ app.post("/login", (req, res) => {
 /////// LOGOUT
 app.post("/logout", (req, res) => {
   req.session = null;
-  return res.redirect("/urls");
+  return res.redirect("/login");
 });
 
 ////////ROUTING
 
 //HOMEPAGE - REDIRECTED TO URLS
 app.get("/", (req, res) => {
-  if (!req.session) {
+  if (!req.session.user_id) {
     return res.redirect("/login");
   }
   else {
@@ -109,6 +109,9 @@ app.get("/urls.json", (req, res) => {
 //URLS MAIN PAGE WITH LIST OF URLS
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
+  if (!userID) {
+    return res.status(400).send("Please login or register to create/see URLs")
+  }
   const urls = urlsForUser(userID, urlDatabase);
   const templateVars = {
     user: users[userID],
@@ -174,10 +177,16 @@ app.post("/urls/:id", (req, res) => {
 });
 //SPECIFIC URL PAIR INFO PAGE WITH EDIT FORM
 app.get("/urls/:id", (req, res) => {
+  const user = req.session.user_id;
+  const id = req.params.id;
+  const longURL = req.body.longURL;
+  if (urlDatabase[id].user_id !== user) {
+    return res.status(400).send("You do not own this URL");
+  };
   const templateVars = {
-    user: users[req.session.user_id],
-    id: req.params.id,
-    longURL: urlDatabase[req.params.id].longURL,
+    user: users[user],
+    id: id,
+    longURL: urlDatabase[id].longURL,
   };
   return res.render("urls_show", templateVars);
 });
